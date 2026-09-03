@@ -20,7 +20,7 @@ export default function Publications() {
           {items.map((i, idx) => (
             <tr key={idx} className="rule">
               <td className="py-3 pr-4 align-top text-moss w-16">{i.year}</td>
-              <td className="py-3 pr-4 align-top"><a href={i.link} className="underline">{i.what}</a></td>
+              <td className="py-3 pr-4 align-top">{i.link !== "#" ? <a href={i.link} className="underline">{i.what}</a> : i.what}</td>
               <td className="py-3 align-top text-ink/70 hidden sm:table-cell">{i.note}</td>
             </tr>
           ))}
