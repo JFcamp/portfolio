@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "tsx scripts/ingest.ts && next build",
+    "build": "next build",
     "start": "next start",
     "ingest": "tsx scripts/ingest.ts"
   },
