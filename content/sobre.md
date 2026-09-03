@@ -21,4 +21,4 @@ OpenAI API, Claude API, Next.js.
 
 Contato: pedrocampos6388@gmail.com
 LinkedIn: https://www.linkedin.com/in/pedro-campos-5760a92ab
-GitHub: [PREENCHER URL]
+GitHub: https://github.com/JFcamp/portfolio
