@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+
+body { @apply bg-paper text-ink font-body antialiased; }
+h1, h2, h3 { @apply font-display; text-wrap: balance; }
+a { text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid theme(colors.mask); outline-offset: 3px; }
+
+.rule { border-top: 1px solid theme(colors.haze); }
+.highlight { box-shadow: inset 4px 0 0 theme(colors.mask); background: color-mix(in srgb, theme(colors.mask) 8%, transparent); transition: background 1.2s ease; }
