@@ -35,7 +35,7 @@ export default function Home() {
       <footer className="rule py-10 text-sm flex flex-wrap gap-x-6 gap-y-2">
         <a href="mailto:pedrocampos6388@gmail.com" className="underline">pedrocampos6388@gmail.com</a>
         <a href="https://www.linkedin.com/in/pedro-campos-5760a92ab" className="underline">LinkedIn</a>
-        <a href="#" className="underline">GitHub</a>
+        <a href="https://github.com/JFcamp/portfolio" className="underline">GitHub</a>
         <span className="text-moss/80">Belo Horizonte, MG</span>
       </footer>
     </main>
