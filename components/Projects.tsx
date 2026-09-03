@@ -42,7 +42,7 @@ const projects = [
     approach: "RAG artesanal: embeddings Voyage, busca por cosseno, geração com Claude e citação de fontes que rolam até a seção.",
     result: "Você está usando.",
     stack: "Next.js · Claude API · Voyage",
-    link: "#",
+    link: "https://github.com/JFcamp/portfolio",
   },
 ];
 
@@ -62,7 +62,7 @@ export default function Projects() {
               <div><dt className="inline text-moss">Problema. </dt><dd className="inline">{p.problem}</dd></div>
               <div><dt className="inline text-moss">Abordagem. </dt><dd className="inline">{p.approach}</dd></div>
               <div><dt className="inline text-moss">Resultado. </dt><dd className="inline">{p.result}</dd></div>
-              <a href={p.link} className="underline mt-1 w-fit">Ver código</a>
+              {p.link !== "#" && <a href={p.link} className="underline mt-1 w-fit">Ver código</a>}
             </dl>
           </li>
         ))}
