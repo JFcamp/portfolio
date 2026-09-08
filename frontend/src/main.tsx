@@ -6,10 +6,13 @@ import { ThemeProvider } from './hooks/useTheme';
 import './i18n';
 import './styles/index.css';
 
+// Router basename must match Vite's base (e.g. "/portfolio/" on GitHub Pages).
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <App />
       </BrowserRouter>
     </ThemeProvider>

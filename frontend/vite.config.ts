@@ -3,7 +3,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
+// Base path for assets. On GitHub Pages the site is served under /<repo>/, so
+// we default to that; override with VITE_BASE (e.g. "/" for Vercel/custom domain).
+const base = process.env.VITE_BASE ?? '/portfolio/';
+
 export default defineConfig({
+  base,
   plugins: [react()],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },

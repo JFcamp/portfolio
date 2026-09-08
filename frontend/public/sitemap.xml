@@ -1,24 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Replace TODO_DOMAIN with your deployed domain. Add /projects/<slug> URLs per case study. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://TODO_DOMAIN/</loc>
+    <loc>https://jfcamp.github.io/portfolio/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://TODO_DOMAIN/projects/navigation-ai</loc>
+    <loc>https://jfcamp.github.io/portfolio/projects/rag-customer-service-assistants</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://TODO_DOMAIN/projects/walmart-forecasting</loc>
+    <loc>https://jfcamp.github.io/portfolio/projects/portfolio-ai-assistant</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://TODO_DOMAIN/projects/customer-churn</loc>
+    <loc>https://jfcamp.github.io/portfolio/projects/multimodal-agro-assistant</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://TODO_DOMAIN/projects/intel-classification</loc>
+    <loc>https://jfcamp.github.io/portfolio/projects/ptbr-llm-benchmark</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jfcamp.github.io/portfolio/projects/explainable-credit-ml</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jfcamp.github.io/portfolio/projects/agrovision-mlops</loc>
     <priority>0.8</priority>
   </url>
 </urlset>

@@ -1,0 +1,61 @@
+name: Deploy frontend to GitHub Pages
+
+# Publishes the static frontend to GitHub Pages on every push to main.
+# NOTE: GitHub Pages serves static files only — the FastAPI backend (the AI
+# assistant) must be hosted elsewhere (e.g. Render). Until then, the site works
+# but the chat will show an error when queried.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Build
+        env:
+          # Served under https://<user>.github.io/portfolio/
+          VITE_BASE: /portfolio/
+          # Point at the backend once it's deployed (e.g. Render URL).
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: npm run build
+
+      - name: SPA fallback (copy index.html -> 404.html)
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
