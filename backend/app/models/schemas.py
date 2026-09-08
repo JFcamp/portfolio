@@ -53,3 +53,5 @@ class HealthResponse(BaseModel):
     chunks: int
     llm_provider: str
     embedding_provider: str
+    llm_model: str = ""
+    llm_key_set: bool = False
