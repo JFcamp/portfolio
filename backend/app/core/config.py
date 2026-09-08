@@ -4,7 +4,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # backend/ root (two levels up from this file: app/core/config.py -> backend/)
@@ -54,6 +54,24 @@ class Settings(BaseSettings):
     rate_limit: str = Field(default="20/minute")
     llm_timeout_seconds: int = Field(default=30)
     log_level: str = Field(default="INFO")
+
+    # Env values pasted into dashboards (Render, etc.) often carry a trailing
+    # newline or spaces. Those break HTTP headers (e.g. the Authorization key)
+    # and provider/model lookups, so we strip these string fields defensively.
+    @field_validator(
+        "llm_provider",
+        "embedding_provider",
+        "llm_api_key",
+        "llm_model",
+        "local_embedding_model",
+        "embedding_model",
+        "vector_db",
+        "allowed_origins",
+        mode="before",
+    )
+    @classmethod
+    def _strip_str(cls, v):
+        return v.strip() if isinstance(v, str) else v
 
     @property
     def effective_relevance_threshold(self) -> float:
