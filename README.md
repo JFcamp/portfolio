@@ -1,7 +1,6 @@
 # Pedro Campos — ML Engineer Portfolio + AI Assistant (RAG)
 
-<!-- After pushing to GitHub, replace TODO_GH_USER/TODO_GH_REPO with your repo path. -->
-[![CI](https://github.com/TODO_GH_USER/TODO_GH_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/TODO_GH_USER/TODO_GH_REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/JFcamp/portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/JFcamp/portfolio/actions/workflows/ci.yml)
 
 A professional portfolio for a Machine Learning / AI Engineer. The portfolio
 itself is a technical demonstration: its centerpiece is an **AI Portfolio
