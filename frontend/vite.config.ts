@@ -3,12 +3,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
-// Base path for assets. On GitHub Pages the site is served under /<repo>/, so
-// we default to that; override with VITE_BASE (e.g. "/" for Vercel/custom domain).
-const base = process.env.VITE_BASE ?? '/portfolio/';
-
-export default defineConfig({
-  base,
+// Base path for assets. The site is served on GitHub Pages under /portfolio/,
+// so we hardcode that for the build. `command === 'serve'` (local dev) uses "/".
+// Override with VITE_BASE if you later move to a custom domain (set it to "/").
+export default defineConfig(({ command }) => ({
+  base: command === 'serve' ? '/' : (process.env.VITE_BASE ?? '/portfolio/'),
   plugins: [react()],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
@@ -30,4 +29,4 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: false,
   },
-});
+}));

@@ -5,6 +5,10 @@ frontend/dist/
 frontend/.vite/
 *.local
 
+# Compiled vite config must never be committed — it shadows vite.config.ts.
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
 # ---- Python / Backend ----
 __pycache__/
 *.py[cod]
