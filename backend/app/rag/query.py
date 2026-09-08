@@ -78,7 +78,46 @@ _INTENT_EXPANSIONS = {
     "teach": "teaching assistant ufv mini-course students",
     "hire": "experience skills technologies projects recruiter fit",
     "fit": "experience skills technologies projects recruiter",
+    # Portuguese intent words -> knowledge-base vocabulary.
+    "quem": "pedro campos machine learning engineer perfil sobre resumo",
+    "sobre": "pedro campos perfil sobre resumo machine learning engineer",
+    "perfil": "pedro campos perfil resumo sobre experiencia competencias",
+    "trabalhou": "experiencia trabalho empresa cargo aguilahub garza itau",
+    "trabalha": "experiencia trabalho empresa cargo aguilahub garza",
+    "trabalho": "experiencia trabalho empresa cargo",
+    "empresa": "experiencia empresa cargo aguilahub garza itau",
+    "empresas": "experiencia empresa cargo aguilahub garza itau",
+    "experiencia": "experiencia trabalho empresa cargo responsabilidades",
+    "profissional": "experiencia profissional trabalho empresa cargo",
+    "formacao": "educacao formacao universidade bacharelado sistemas informacao ufv",
+    "educacao": "educacao formacao universidade bacharelado ufv",
+    "estudou": "educacao formacao universidade bacharelado ufv",
+    "premios": "premio melhor artigo wvc wsis pesquisa reconhecimento",
+    "premio": "premio melhor artigo wvc wsis pesquisa reconhecimento",
+    "artigos": "premio artigo wvc wsis pesquisa publicacao",
+    "artigo": "premio artigo wvc wsis pesquisa publicacao",
+    "tecnologias": "tecnologias ferramentas competencias stack",
+    "tecnologia": "tecnologias ferramentas competencias stack",
+    "competencias": "competencias tecnologias habilidades skills",
+    "habilidades": "competencias tecnologias habilidades skills",
+    "projetos": "projetos trabalhos chatbots assistentes pesquisa solucoes",
+    "projeto": "projetos trabalhos chatbots assistentes pesquisa solucoes",
+    "certificacoes": "certificacoes certificado harvard cs50 google",
+    "certificacao": "certificacoes certificado harvard cs50 google",
+    "resumo": "resumo perfil experiencia competencias tecnologias projetos",
+    "resuma": "resumo perfil experiencia competencias tecnologias projetos",
+    "pesquisa": "pesquisa deep learning artigo premio ufv",
+    "pedro": "pedro campos machine learning engineer perfil",
+    "campos": "pedro campos machine learning engineer perfil",
 }
+
+# When a question is about Pedro in general (identity/bio) or expansion found
+# nothing, we inject the profile vocabulary so the about/resume docs are reached.
+_IDENTITY_HINT = (
+    "pedro campos machine learning engineer perfil sobre resumo experiencia "
+    "profile about summary experience"
+)
+_IDENTITY_TRIGGERS = {"quem", "who", "pedro", "campos", "sobre", "about", "perfil", "profile"}
 
 _ALL = {**_TERM_EXPANSIONS, **_INTENT_EXPANSIONS}
 _TOKEN = re.compile(r"[a-z0-9]+")
@@ -90,6 +129,10 @@ def expand_query(query: str) -> str:
     for tok in tokens:
         if tok in _ALL:
             extra.append(_ALL[tok])
-    if not extra:
-        return query
-    return query + " " + " ".join(extra)
+
+    # Identity/bio questions, or queries with no strong signal, get the profile
+    # vocabulary so retrieval reliably reaches the "about"/"resume" documents.
+    if any(t in _IDENTITY_TRIGGERS for t in tokens) or not extra:
+        extra.append(_IDENTITY_HINT)
+
+    return query + " " + " ".join(extra) if extra else query
