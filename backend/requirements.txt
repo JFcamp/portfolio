@@ -1,0 +1,19 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+slowapi==0.1.9
+numpy==1.26.4
+faiss-cpu==1.8.0
+structlog==24.4.0
+httpx==0.27.2
+
+# Real local (multilingual) embeddings — no API key needed.
+sentence-transformers==3.0.1
+# Pinned for numpy 1.26 / faiss compatibility (sentence-transformers deps).
+scipy==1.13.1
+scikit-learn==1.5.1
+
+# dev / test
+pytest==8.3.3

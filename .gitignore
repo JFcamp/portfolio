@@ -1,0 +1,44 @@
+# ---- Node / Frontend ----
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# ---- Python / Backend ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Environment & secrets ----
+.env
+*.env
+!.env.example
+backend/.env
+frontend/.env
+
+# ---- RAG artifacts (generated) ----
+backend/app/rag/store/
+*.faiss
+*.index
+vector_store/
+storage/
+
+# ---- OS / Editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# ---- Build / coverage ----
+coverage/
+htmlcov/
+dist/
+build/

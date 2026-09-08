@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "home": "Início",
+    "about": "Sobre",
+    "experience": "Experiência",
+    "projects": "Projetos",
+    "skills": "Competências",
+    "assistant": "Assistente IA",
+    "contact": "Contato",
+    "resume": "Baixar Currículo"
+  },
+  "hero": {
+    "viewProjects": "Ver Projetos",
+    "askAi": "Perguntar à IA",
+    "resume": "Baixar Currículo"
+  },
+  "tech": {
+    "title": "Tecnologias que utilizo"
+  },
+  "about": {
+    "eyebrow": "Sobre",
+    "title": "Sobre Mim",
+    "p1": "Sou Machine Learning Engineer focado em transformar dados em sistemas confiáveis e prontos para produção. Meu trabalho abrange ML clássico, visão computacional e IA generativa, com ênfase em geração aumentada por recuperação (RAG) e automação de IA prática.",
+    "p2": "Me importo com o ciclo completo: formular o problema, engenheirar os dados, escolher o modelo certo e entregá-lo atrás de uma API limpa, pensando em monitoramento. Gosto de problemas em que confiabilidade e fundamentação importam tanto quanto o desempenho do modelo.",
+    "p3": "O assistente deste site é um exemplo ao vivo: um pipeline RAG real que responde perguntas sobre minha trajetória usando apenas a minha base de conhecimento."
+  },
+  "experience": {
+    "eyebrow": "Experiência",
+    "title": "Experiência",
+    "responsibilities": "Principais responsabilidades"
+  },
+  "projects": {
+    "eyebrow": "Trabalhos",
+    "title": "Projetos em Destaque",
+    "problem": "Problema",
+    "solution": "Solução",
+    "tech": "Tecnologias",
+    "results": "Resultados",
+    "viewProject": "Ver Projeto",
+    "github": "GitHub",
+    "caseStudy": "Estudo de Caso",
+    "paper": "Artigo",
+    "deliverable": "Entregável",
+    "filterAll": "Todos",
+    "featured": "Trabalhos em destaque",
+    "more": "Mais projetos"
+  },
+  "skills": {
+    "eyebrow": "Capacidades",
+    "title": "Competências"
+  },
+  "architecture": {
+    "buildEyebrow": "Engenharia",
+    "buildTitle": "Como Construo Sistemas de IA",
+    "aiEyebrow": "Transparência",
+    "aiTitle": "Como esta IA funciona"
+  },
+  "aiDemo": {
+    "eyebrow": "Demo ao vivo",
+    "title": "Veja a IA em ação",
+    "subtitle": "Escolha uma pergunta e veja o pipeline RAG real rodar: gerar embedding, buscar na base de conhecimento e então responder — fundamentado em fontes, nunca inventado.",
+    "run": "Executar",
+    "running": "Executando…",
+    "tryThese": "Experimente uma destas:",
+    "answer": "Resposta",
+    "steps": {
+      "embed": "Gerando embedding da pergunta",
+      "search": "Buscando na base de conhecimento",
+      "ground": "Montando o contexto fundamentado",
+      "answer": "Gerando a resposta"
+    },
+    "samples": [
+      "Qual a experiência do Pedro com RAG?",
+      "Quais projetos usam visão computacional?",
+      "Resuma o perfil do Pedro para um recrutador"
+    ],
+    "hintOffline": "Dica: no modo offline gratuito as respostas são extrativas; conecte uma chave de LLM gratuita para respostas totalmente redigidas.",
+    "confidence": "confiança"
+  },
+  "education": {
+    "title": "Formação"
+  },
+  "certifications": {
+    "title": "Certificações"
+  },
+  "contact": {
+    "eyebrow": "Contato",
+    "title": "Vamos Construir Algo Inteligente.",
+    "text": "Tenho sempre prazer em trocar ideias sobre Machine Learning e IA. Fique à vontade para entrar em contato para falar sobre projetos, colaborações ou problemas interessantes.",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "github": "GitHub"
+  },
+  "footer": {
+    "builtWith": "Feito com React + Python + IA"
+  },
+  "chat": {
+    "openLabel": "Pergunte à IA do Pedro",
+    "title": "Pedro AI",
+    "subtitle": "Pergunte qualquer coisa sobre minha experiência, projetos e conhecimento técnico.",
+    "placeholder": "Pergunte sobre experiência, projetos, competências…",
+    "send": "Enviar",
+    "searching": "Buscando na base de conhecimento…",
+    "generating": "Gerando resposta…",
+    "sources": "Fontes",
+    "inspector": "Contexto recuperado",
+    "inspectorHint": "Trechos que o pipeline RAG recuperou, com scores de similaridade",
+    "match": "similaridade",
+    "error": "Algo deu errado. Tente novamente.",
+    "tryAsking": "Experimente perguntar:",
+    "recruiterMode": "Modo Recrutador",
+    "generateSummary": "Gerar Resumo do Candidato",
+    "confidence": "confiança",
+    "suggestions": [
+      "Quais são as competências de ML mais fortes do Pedro?",
+      "Fale sobre os projetos de visão computacional dele.",
+      "O Pedro tem experiência com RAG?",
+      "Quais tecnologias ele utiliza?",
+      "Qual projeto devo ver primeiro?",
+      "Resuma o perfil do Pedro para um recrutador."
+    ],
+    "recruiterSuggestions": [
+      "Resuma o perfil do Pedro",
+      "Quais são as competências técnicas mais fortes dele?",
+      "Quais projetos demonstram experiência em produção?",
+      "Qual experiência ele tem com IA?",
+      "Qual é a stack de tecnologia dele?",
+      "Por que ele se encaixaria numa vaga de ML Engineer?"
+    ]
+  },
+  "caseStudy": {
+    "back": "Voltar aos projetos",
+    "overview": "Visão Geral do Projeto",
+    "problem": "Problema",
+    "dataset": "Dataset",
+    "architecture": "Arquitetura",
+    "approach": "Abordagem",
+    "model": "Modelo",
+    "training": "Treinamento",
+    "evaluation": "Avaliação",
+    "results": "Resultados",
+    "challenges": "Desafios",
+    "learned": "O Que Aprendi",
+    "technologies": "Tecnologias",
+    "repository": "Repositório",
+    "demo": "Demo",
+    "paper": "Artigo",
+    "deliverable": "Entregável"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "back": "Ir para o início"
+  },
+  "palette": {
+    "placeholder": "Buscar seções, projetos ou perguntar à IA…",
+    "empty": "Nenhum resultado",
+    "sections": "Seções",
+    "projects": "Projetos",
+    "ai": "Assistente IA",
+    "askPrefix": "Perguntar à IA:",
+    "hint": "Pressione Ctrl/⌘ + K a qualquer momento"
+  }
+}

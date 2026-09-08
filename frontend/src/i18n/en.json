@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "experience": "Experience",
+    "projects": "Projects",
+    "skills": "Skills",
+    "assistant": "AI Assistant",
+    "contact": "Contact",
+    "resume": "Download Resume"
+  },
+  "hero": {
+    "viewProjects": "View Projects",
+    "askAi": "Ask my AI",
+    "resume": "Download Resume"
+  },
+  "tech": {
+    "title": "Technologies I work with"
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "About Me",
+    "p1": "I'm a Machine Learning Engineer focused on turning data into dependable, production-minded systems. My work spans classical ML, computer vision, and generative AI, with an emphasis on retrieval-augmented generation and practical AI automation.",
+    "p2": "I care about the full lifecycle: framing the problem, engineering the data, choosing the right model, and shipping it behind a clean API with monitoring in mind. I enjoy problems where reliability and grounding matter as much as raw model performance.",
+    "p3": "The assistant on this site is a live example: a real RAG pipeline that answers questions about my background using only my own knowledge base."
+  },
+  "experience": {
+    "eyebrow": "Experience",
+    "title": "Experience",
+    "responsibilities": "Key responsibilities"
+  },
+  "projects": {
+    "eyebrow": "Work",
+    "title": "Featured Projects",
+    "problem": "Problem",
+    "solution": "Solution",
+    "tech": "Tech",
+    "results": "Results",
+    "viewProject": "View Project",
+    "github": "GitHub",
+    "caseStudy": "Case Study",
+    "paper": "Paper",
+    "deliverable": "Deliverable",
+    "filterAll": "All",
+    "featured": "Featured work",
+    "more": "More projects"
+  },
+  "skills": {
+    "eyebrow": "Capabilities",
+    "title": "Skills"
+  },
+  "architecture": {
+    "buildEyebrow": "Engineering",
+    "buildTitle": "How I Build AI Systems",
+    "aiEyebrow": "Transparency",
+    "aiTitle": "How this AI works"
+  },
+  "aiDemo": {
+    "eyebrow": "Live demo",
+    "title": "See the AI in action",
+    "subtitle": "Pick a question and watch the real RAG pipeline run: embed, search the knowledge base, then answer — grounded in sources, never invented.",
+    "run": "Run",
+    "running": "Running…",
+    "tryThese": "Try one of these:",
+    "answer": "Answer",
+    "steps": {
+      "embed": "Embedding the question",
+      "search": "Searching the knowledge base",
+      "ground": "Building grounded context",
+      "answer": "Generating the answer"
+    },
+    "samples": [
+      "What is Pedro's experience with RAG?",
+      "Which projects use computer vision?",
+      "Summarize Pedro's profile for a recruiter"
+    ],
+    "hintOffline": "Tip: answers are extractive in the free offline mode; connect a free LLM key for fully written responses.",
+    "confidence": "confidence"
+  },
+  "education": {
+    "title": "Education"
+  },
+  "certifications": {
+    "title": "Certifications"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Let's Build Something Intelligent.",
+    "text": "I'm always glad to exchange ideas about Machine Learning and AI. Feel free to reach out to talk about projects, collaborations or interesting problems.",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "github": "GitHub"
+  },
+  "footer": {
+    "builtWith": "Built with React + Python + AI"
+  },
+  "chat": {
+    "openLabel": "Ask Pedro's AI",
+    "title": "Pedro AI",
+    "subtitle": "Ask anything about my experience, projects and technical background.",
+    "placeholder": "Ask about my experience, projects, skills…",
+    "send": "Send",
+    "searching": "Searching my knowledge base…",
+    "generating": "Generating answer…",
+    "sources": "Sources",
+    "inspector": "Retrieved context",
+    "inspectorHint": "Chunks the RAG pipeline retrieved, with similarity scores",
+    "match": "match",
+    "error": "Something went wrong. Please try again.",
+    "tryAsking": "Try asking:",
+    "recruiterMode": "Recruiter Mode",
+    "generateSummary": "Generate Candidate Summary",
+    "confidence": "confidence",
+    "suggestions": [
+      "What are Pedro's strongest ML skills?",
+      "Tell me about his computer vision projects.",
+      "Does Pedro have experience with RAG?",
+      "What technologies does he use?",
+      "Which project should I look at first?",
+      "Summarize Pedro's profile for a recruiter."
+    ],
+    "recruiterSuggestions": [
+      "Summarize Pedro's profile",
+      "What are his strongest technical skills?",
+      "Which projects demonstrate production experience?",
+      "What experience does he have with AI?",
+      "What is his technology stack?",
+      "Why could he fit an ML Engineer position?"
+    ]
+  },
+  "caseStudy": {
+    "back": "Back to projects",
+    "overview": "Project Overview",
+    "problem": "Problem",
+    "dataset": "Dataset",
+    "architecture": "Architecture",
+    "approach": "Approach",
+    "model": "Model",
+    "training": "Training",
+    "evaluation": "Evaluation",
+    "results": "Results",
+    "challenges": "Challenges",
+    "learned": "What I Learned",
+    "technologies": "Technologies",
+    "repository": "Repository",
+    "demo": "Demo",
+    "paper": "Paper",
+    "deliverable": "Deliverable"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Go home"
+  },
+  "palette": {
+    "placeholder": "Search sections, projects, or ask the AI…",
+    "empty": "No results",
+    "sections": "Sections",
+    "projects": "Projects",
+    "ai": "AI Assistant",
+    "askPrefix": "Ask the AI:",
+    "hint": "Press Ctrl/⌘ + K anytime"
+  }
+}

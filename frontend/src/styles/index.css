@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light theme (default) — clean, bright, high-contrast. */
+  :root {
+    --bg: 255 255 255;
+    --bg-secondary: 248 250 252;
+    --bg-card: 255 255 255;
+    --content-primary: 15 23 42;
+    --content-secondary: 71 85 105;
+    --accent: 2 132 199;
+    --accent-soft: 8 145 178;
+    --border: 226 232 240;
+    color-scheme: light;
+  }
+
+  /* Dark theme — applied when <html class="dark"> is set. */
+  .dark {
+    --bg: 8 10 15;
+    --bg-secondary: 13 17 23;
+    --bg-card: 17 24 39;
+    --content-primary: 248 250 252;
+    --content-secondary: 148 163 184;
+    --accent: 56 189 248;
+    --accent-soft: 34 211 238;
+    --border: 39 47 61;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    @apply bg-bg text-content-primary font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  ::selection {
+    @apply bg-accent/20 text-content-primary;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-bg;
+  }
+}
+
+@layer components {
+  .container-content {
+    @apply mx-auto w-full max-w-content px-6 sm:px-8;
+  }
+
+  .section {
+    @apply py-20 sm:py-28 scroll-mt-24;
+  }
+
+  .eyebrow {
+    @apply text-sm font-medium uppercase tracking-[0.2em] text-accent;
+  }
+
+  .heading-2 {
+    @apply text-3xl font-semibold tracking-tight text-content-primary sm:text-4xl;
+  }
+
+  .card {
+    @apply rounded-xl border border-border bg-bg-card shadow-sm;
+  }
+
+  .tag {
+    @apply inline-flex items-center rounded-md border border-border bg-bg-secondary px-2.5 py-1 text-xs font-medium text-content-secondary;
+  }
+
+  .link-muted {
+    @apply text-content-secondary transition-colors duration-200 hover:text-content-primary;
+  }
+}

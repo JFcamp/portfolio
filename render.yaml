@@ -1,0 +1,30 @@
+# Render deployment for the backend RAG API.
+# Free tier note: the "local" (sentence-transformers) embeddings pull in torch,
+# which is heavy for a 512MB free instance. Two supported options:
+#   A) Starter instance (paid, more RAM) with EMBEDDING_PROVIDER=local.
+#   B) Free instance with EMBEDDING_PROVIDER=offline (hashing fallback) — no
+#      torch, always fits, lower retrieval quality.
+# Set LLM_PROVIDER=groq + LLM_API_KEY (free Groq key) for fully written answers.
+services:
+  - type: web
+    name: portfolio-rag-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python ../scripts/ingest.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: EMBEDDING_PROVIDER
+        value: offline        # change to "local" on a larger instance (more RAM)
+      - key: LLM_PROVIDER
+        value: groq           # fully written answers via Groq free tier
+      - key: LLM_API_KEY
+        sync: false           # paste your Groq key in the Render dashboard
+      - key: LLM_MODEL
+        value: openai/gpt-oss-20b
+      - key: RETRIEVAL_TOP_K
+        value: "10"
+      - key: ALLOWED_ORIGINS
+        sync: false           # e.g. https://your-portfolio.vercel.app
+      - key: PYTHON_VERSION
+        value: "3.12"

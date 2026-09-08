@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Replace TODO_DOMAIN with your deployed domain. Add /projects/<slug> URLs per case study. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://TODO_DOMAIN/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://TODO_DOMAIN/projects/navigation-ai</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://TODO_DOMAIN/projects/walmart-forecasting</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://TODO_DOMAIN/projects/customer-churn</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://TODO_DOMAIN/projects/intel-classification</loc>
+    <priority>0.8</priority>
+  </url>
+</urlset>
