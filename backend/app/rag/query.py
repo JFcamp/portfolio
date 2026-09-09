@@ -109,6 +109,21 @@ _INTENT_EXPANSIONS = {
     "pesquisa": "pesquisa deep learning artigo premio ufv",
     "pedro": "pedro campos machine learning engineer perfil",
     "campos": "pedro campos machine learning engineer perfil",
+    # Computer vision (PT + EN) -> the CV/agro/edge projects.
+    "visao": "visao computacional imagem segmentacao yolo agro edge inference",
+    "computacional": "visao computacional imagem segmentacao yolo agro",
+    "imagem": "visao computacional imagem segmentacao yolo",
+    "imagens": "visao computacional imagem segmentacao yolo",
+    "vision": "computer vision image segmentation yolo agro edge",
+    "yolo": "yolo segmentation computer vision agro weed detection",
+    "segmentacao": "segmentacao yolo visao computacional agro",
+    "agro": "agro agrovision yolo segmentacao daninhas edge",
+    "edge": "edge inference onnx tensorrt embedded offline",
+    "mlops": "mlops mlflow deploy monitoramento drift serving pipeline",
+    "voz": "voz asr whisper tts atendimento fala",
+    "voice": "voice asr whisper tts speech",
+    "recomendacao": "recomendacao two-tower recall recommender",
+    "credito": "credito risco explicavel calibracao shap justica",
 }
 
 # When a question is about Pedro in general (identity/bio) or expansion found
