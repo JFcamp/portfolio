@@ -18,12 +18,32 @@ sys.path.insert(0, str(BACKEND_ROOT))
 
 from app.core.config import get_settings  # noqa: E402
 from app.core.logging import configure_logging  # noqa: E402
+from app.rag.embeddings import build_embedding_provider  # noqa: E402
 from app.rag.ingestion import ingest_and_persist  # noqa: E402
+from app.rag.vector_store import load_vector_store  # noqa: E402
 
 
 def main() -> None:
     configure_logging()
     settings = get_settings()
+    force = "--force" in sys.argv
+
+    # By default, SKIP re-ingestion if a valid committed index already exists
+    # that matches the active embedder. This keeps cold starts fast even when a
+    # host runs this script at every boot (re-embedding 300+ chunks via the API
+    # can take minutes). Use --force to rebuild explicitly.
+    if not force:
+        store = load_vector_store(settings.store_path)
+        if store is not None:
+            embedder = build_embedding_provider(settings)
+            if store.dim == embedder.dim and store.size() > 0:
+                print(
+                    f"Index already present and matches embedder "
+                    f"(dim={store.dim}, chunks={store.size()}). Skipping ingest. "
+                    f"Use --force to rebuild."
+                )
+                return
+
     print(
         f"Ingesting knowledge base "
         f"(embedding_provider={settings.embedding_provider}, "

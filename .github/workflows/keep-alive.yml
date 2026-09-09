@@ -1,0 +1,43 @@
+name: Keep backend awake
+
+# Render's free tier spins the service down after ~15 min of inactivity, which
+# makes the first request afterwards take ~50s (cold start). This scheduled job
+# pings the health endpoint so the service stays warm and responds fast for
+# visitors. Free, no external service required.
+#
+# NOTE: GitHub cron is best-effort and can be delayed under load, so we ping a
+# few times per run (spaced out) to better cover the ~15 min window.
+on:
+  schedule:
+    # Every 10 minutes (uses UTC; interval is what matters here).
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          URL="https://portfolio-ws3k.onrender.com/api/health"
+          for i in 1 2 3; do
+            echo "Ping #$i -> $URL"
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo "000")
+            echo "HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Backend is awake."
+              exit 0
+            fi
+            # First request may be a cold start; wait and retry to warm it up.
+            sleep 40
+          done
+          echo "Backend did not return 200 after retries (may still be waking up)."
+          # Don't fail the workflow: a missed ping shouldn't spam failure emails.
+          exit 0

@@ -34,3 +34,21 @@ export async function checkHealth(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Keep the free-tier backend warm while a visitor has the site open.
+ *
+ * Render's free instance sleeps after ~15 min idle, so the first chat request
+ * would otherwise take ~50s (cold start). We ping /api/health on load (warming
+ * it up before the user even asks) and every 10 min while the tab is open.
+ * Returns a cleanup function to stop the interval.
+ */
+export function keepBackendWarm(intervalMs = 10 * 60 * 1000): () => void {
+  const ping = () => {
+    // Fire-and-forget; ignore failures (a missed ping is harmless).
+    void fetch(`${API_URL}/api/health`).catch(() => {});
+  };
+  ping(); // warm up immediately on page load
+  const id = window.setInterval(ping, intervalMs);
+  return () => window.clearInterval(id);
+}

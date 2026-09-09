@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ChatWidget } from '@/components/ChatWidget';
 import { CommandPalette } from '@/components/CommandPalette';
+import { keepBackendWarm } from '@/services/api';
 import { HomePage } from '@/pages/HomePage';
 import { CaseStudyPage } from '@/pages/CaseStudyPage';
 import { NotFound } from '@/pages/NotFound';
@@ -18,6 +19,10 @@ export default function App() {
     setPendingQuery(query);
     setChatOpen(true);
   }, []);
+
+  // Warm the free-tier backend on load and periodically, so the first chat
+  // request doesn't hit a ~50s cold start.
+  useEffect(() => keepBackendWarm(), []);
 
   return (
     <>
