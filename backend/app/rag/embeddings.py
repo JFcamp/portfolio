@@ -140,8 +140,9 @@ class GeminiEmbeddingProvider:
     """Google Gemini embeddings via the generativelanguage REST API (httpx).
 
     Free tier, no local RAM cost — ideal for small hosting instances. Uses
-    ``text-embedding-004`` by default. Vectors are L2-normalized so cosine
-    similarity equals inner product in the vector store.
+    ``gemini-embedding-001`` by default (3072-dim). Vectors are L2-normalized so
+    cosine similarity equals inner product in the vector store. The dimension is
+    probed at init, so a different model just works.
     """
 
     semantic = True
@@ -151,43 +152,51 @@ class GeminiEmbeddingProvider:
         self._key = api_key
         self._model = model if model.startswith("models/") else f"models/{model}"
         self._timeout = timeout
-        self.dim = 768  # text-embedding-004
+        # Detect the real vector size once, so the store dim always matches the
+        # model (gemini-embedding-001 -> 3072) even if the model changes later.
+        self.dim = len(self.embed_one("dimension probe"))
 
-    def embed(self, texts: list[str]) -> list[list[float]]:
+    def _post(self, url: str, payload: dict):
+        """POST with retry + backoff on 429/5xx so ingestion survives the free
+        tier's low rate limit (a few requests/minute)."""
+        import time
+
         import httpx
 
-        # Batch endpoint keeps ingestion fast and within rate limits.
+        delay = 2.0
+        for attempt in range(8):
+            resp = httpx.post(url, json=payload, timeout=self._timeout)
+            if resp.status_code == 200:
+                return resp.json()
+            if resp.status_code == 429 or resp.status_code >= 500:
+                time.sleep(delay)
+                delay = min(delay * 2, 60)  # exponential backoff, capped
+                continue
+            raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
+        raise RuntimeError("Gemini embed: rate limit / server error after retries")
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
         url = f"{self._BASE}/{self._model}:batchEmbedContents?key={self._key}"
         out: list[list[float]] = []
-        # Gemini caps batch size; chunk to be safe.
-        for start in range(0, len(texts), 100):
-            batch = texts[start : start + 100]
+        # Small batches stay well within the free-tier request size limits.
+        for start in range(0, len(texts), 50):
+            batch = texts[start : start + 50]
             payload = {
                 "requests": [
-                    {
-                        "model": self._model,
-                        "content": {"parts": [{"text": t}]},
-                    }
+                    {"model": self._model, "content": {"parts": [{"text": t}]}}
                     for t in batch
                 ]
             }
-            resp = httpx.post(url, json=payload, timeout=self._timeout)
-            if resp.status_code >= 400:
-                raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
-            data = resp.json()
+            data = self._post(url, payload)
             for emb in data.get("embeddings", []):
                 out.append(_l2_normalize(emb["values"]))
         return out
 
     def embed_one(self, text: str) -> list[float]:
-        import httpx
-
         url = f"{self._BASE}/{self._model}:embedContent?key={self._key}"
         payload = {"model": self._model, "content": {"parts": [{"text": text}]}}
-        resp = httpx.post(url, json=payload, timeout=self._timeout)
-        if resp.status_code >= 400:
-            raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
-        return _l2_normalize(resp.json()["embedding"]["values"])
+        data = self._post(url, payload)
+        return _l2_normalize(data["embedding"]["values"])
 
 
 class OpenAIEmbeddingProvider:

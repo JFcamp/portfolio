@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     embedding_api_key: str = Field(default="")
     llm_model: str = Field(default="openai/gpt-oss-20b")
     embedding_model: str = Field(default="text-embedding-3-small")  # openai
-    gemini_embedding_model: str = Field(default="text-embedding-004")
+    gemini_embedding_model: str = Field(default="gemini-embedding-001")
     # Local multilingual model (PT + EN) used when embedding_provider == "local".
     local_embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2")
 

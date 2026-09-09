@@ -28,10 +28,18 @@ class ChatService:
         self._llm = build_llm_provider(self._settings)
 
         store = load_vector_store(self._settings.store_path)
-        if store is None:
-            # No persisted index yet — build one in memory so the API works
-            # out of the box. `scripts/ingest.py` can persist it later.
-            logger.info("index_missing_building_in_memory")
+        # Guard: the committed index must match the active embedder's dimension.
+        # If they differ (index built with a different provider) or no index
+        # exists, rebuild in memory so the API never crashes on a dim mismatch.
+        if store is None or store.dim != self._embedder.dim:
+            if store is not None:
+                logger.info(
+                    "index_dim_mismatch_rebuilding",
+                    index_dim=store.dim,
+                    embedder_dim=self._embedder.dim,
+                )
+            else:
+                logger.info("index_missing_building_in_memory")
             store, _ = build_index(self._settings)
         self._retriever = Retriever(self._embedder, store, self._settings)
 

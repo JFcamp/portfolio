@@ -28,9 +28,9 @@ backend/.env
 frontend/.env
 
 # ---- RAG artifacts (generated) ----
-backend/app/rag/store/
-*.faiss
-*.index
+# The Gemini index is pre-computed and committed (see below), so production
+# loads it without re-embedding (which would hit the free-tier rate limit).
+# Other vector artifacts stay ignored.
 vector_store/
 storage/
 

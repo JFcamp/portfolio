@@ -1,6 +1,18 @@
 """API endpoint tests."""
 from __future__ import annotations
 
+import pytest
+
+from app.core.config import get_settings
+from app.rag.embeddings import build_embedding_provider
+
+# Off-topic rejection is a semantic property; the hashing fallback can't do it,
+# so tests that assert it are skipped when a semantic embedder isn't active.
+_SEMANTIC = getattr(build_embedding_provider(get_settings()), "semantic", False)
+requires_semantic_embeddings = pytest.mark.skipif(
+    not _SEMANTIC, reason="off-topic rejection requires a semantic embedder"
+)
+
 
 def test_health(client):
     resp = client.get("/api/health")
@@ -40,6 +52,7 @@ def test_chat_recruiter_mode(client):
     assert resp.json()["answer"]
 
 
+@requires_semantic_embeddings
 def test_chat_unknown_topic_no_sources(client):
     resp = client.post(
         "/api/chat", json={"message": "What is Pedro's favorite pizza topping?"}

@@ -74,6 +74,7 @@ def test_retrieval_works_in_portuguese(service):
     assert resp.confidence > 0
 
 
+@requires_semantic_embeddings
 @pytest.mark.parametrize(
     "question",
     [
@@ -83,8 +84,9 @@ def test_retrieval_works_in_portuguese(service):
     ],
 )
 def test_no_hallucination_when_clearly_off_topic(service, question):
-    # Clearly off-topic questions (low retrieval score) must return the standard
-    # "not enough info" response, never a fabricated answer.
+    # Clearly off-topic questions must return the standard "not enough info"
+    # response, never a fabricated answer. Requires a semantic embedder: the
+    # hashing fallback can't separate topics by score, so this is skipped there.
     resp = service.answer(question)
     assert resp.answer == no_context_message("en")
     assert resp.sources == []
