@@ -55,3 +55,8 @@ class HealthResponse(BaseModel):
     embedding_provider: str
     llm_model: str = ""
     llm_key_set: bool = False
+    loaded_from_disk: bool = False
+    store_backend: str = ""
+    store_dim: int = 0
+    embedder_dim: int = 0
+    retrieval_top_k: int = 0

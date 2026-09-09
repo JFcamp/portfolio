@@ -28,6 +28,10 @@ class ChatService:
         self._llm = build_llm_provider(self._settings)
 
         store = load_vector_store(self._settings.store_path)
+        # Diagnostics so /api/health can reveal exactly what production is using.
+        self.loaded_from_disk = store is not None
+        self.store_backend = type(store).__name__ if store is not None else "none"
+        self.store_dim = store.dim if store is not None else 0
         # Guard: the committed index must match the active embedder's dimension.
         # If they differ (index built with a different provider) or no index
         # exists, rebuild in memory so the API never crashes on a dim mismatch.
@@ -41,6 +45,9 @@ class ChatService:
             else:
                 logger.info("index_missing_building_in_memory")
             store, _ = build_index(self._settings)
+            self.loaded_from_disk = False
+            self.store_backend = type(store).__name__
+            self.store_dim = store.dim
         self._retriever = Retriever(self._embedder, store, self._settings)
 
     @property

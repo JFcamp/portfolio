@@ -22,4 +22,9 @@ def health(request: Request) -> HealthResponse:
         embedding_provider=settings.embedding_provider,
         llm_model=settings.llm_model,
         llm_key_set=bool(settings.llm_api_key),
+        loaded_from_disk=getattr(service, "loaded_from_disk", False),
+        store_backend=getattr(service, "store_backend", ""),
+        store_dim=getattr(service, "store_dim", 0),
+        embedder_dim=getattr(service, "_embedder", None).dim if service else 0,
+        retrieval_top_k=settings.retrieval_top_k,
     )
