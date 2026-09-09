@@ -158,29 +158,40 @@ class GeminiEmbeddingProvider:
 
     def _post(self, url: str, payload: dict):
         """POST with retry + backoff on 429/5xx so ingestion survives the free
-        tier's low rate limit (a few requests/minute)."""
+        tier's low rate limit (a few requests/minute). Honors the server's
+        suggested retry delay when present."""
+        import re as _re
         import time
 
         import httpx
 
-        delay = 2.0
-        for attempt in range(8):
+        delay = 5.0
+        for attempt in range(12):
             resp = httpx.post(url, json=payload, timeout=self._timeout)
             if resp.status_code == 200:
                 return resp.json()
             if resp.status_code == 429 or resp.status_code >= 500:
-                time.sleep(delay)
-                delay = min(delay * 2, 60)  # exponential backoff, capped
+                # Prefer the server's RetryInfo delay ("retryDelay": "37s") if given.
+                wait = delay
+                m = _re.search(r'"retryDelay"\s*:\s*"(\d+)s"', resp.text)
+                if m:
+                    wait = float(m.group(1)) + 1
+                time.sleep(min(wait, 90))
+                delay = min(delay * 1.8, 90)  # exponential backoff, capped
                 continue
             raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
         raise RuntimeError("Gemini embed: rate limit / server error after retries")
 
     def embed(self, texts: list[str]) -> list[list[float]]:
+        import time
+
         url = f"{self._BASE}/{self._model}:batchEmbedContents?key={self._key}"
         out: list[list[float]] = []
-        # Small batches stay well within the free-tier request size limits.
-        for start in range(0, len(texts), 50):
-            batch = texts[start : start + 50]
+        # One batchEmbedContents call counts as ONE request, so batching many
+        # texts per call is the most rate-limit-friendly way to ingest.
+        batch_size = 100
+        batches = [texts[i : i + batch_size] for i in range(0, len(texts), batch_size)]
+        for n, batch in enumerate(batches):
             payload = {
                 "requests": [
                     {"model": self._model, "content": {"parts": [{"text": t}]}}
@@ -190,6 +201,8 @@ class GeminiEmbeddingProvider:
             data = self._post(url, payload)
             for emb in data.get("embeddings", []):
                 out.append(_l2_normalize(emb["values"]))
+            if n < len(batches) - 1:
+                time.sleep(8)  # gentle spacing to stay under free-tier RPM
         return out
 
     def embed_one(self, text: str) -> list[float]:

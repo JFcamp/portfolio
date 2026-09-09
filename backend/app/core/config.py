@@ -43,7 +43,10 @@ class Settings(BaseSettings):
     # RAG tuning
     chunk_size: int = Field(default=800)
     chunk_overlap: int = Field(default=120)
-    retrieval_top_k: int = Field(default=6)
+    # Retrieve a generous number of chunks and let the grounded LLM pick what's
+    # relevant. Higher recall matters because skills are split across several
+    # category chunks (a broad question can span DevOps + Cloud + Databases).
+    retrieval_top_k: int = Field(default=10)
     # Minimum cosine similarity for a chunk to count as relevant. The hashing
     # fallback and real semantic models have different score scales, so each has
     # its own threshold; the retriever picks based on the built provider.

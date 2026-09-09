@@ -28,7 +28,7 @@ services:
       - key: LLM_MODEL
         value: openai/gpt-oss-20b
       - key: RETRIEVAL_TOP_K
-        value: "6"
+        value: "10"
       - key: ALLOWED_ORIGINS
         sync: false           # e.g. https://jfcamp.github.io
       - key: PYTHON_VERSION
