@@ -1,0 +1,8 @@
+# Optional: only needed to run EMBEDDING_PROVIDER=local (sentence-transformers)
+# on your own machine. NOT installed on the free hosting instance (which uses
+# the Gemini embedding API instead). Install with:
+#   pip install -r requirements.txt -r requirements-local.txt
+-r requirements.txt
+sentence-transformers==3.0.1
+scipy==1.13.1
+scikit-learn==1.5.1

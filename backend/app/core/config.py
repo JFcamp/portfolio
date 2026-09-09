@@ -24,10 +24,15 @@ class Settings(BaseSettings):
     # LLM: "offline" (extractive, no key) | "groq" | "gemini" | "openai"
     llm_provider: str = Field(default="offline")
     # Embeddings: "local" (sentence-transformers, recommended) | "offline" | "openai"
-    embedding_provider: str = Field(default="local")
+    # Embeddings: "gemini" (recommended for hosting, free API, no RAM) |
+    #             "local" (sentence-transformers) | "openai" | "offline"
+    embedding_provider: str = Field(default="gemini")
     llm_api_key: str = Field(default="")
+    # Dedicated key for embeddings (Gemini/OpenAI). Falls back to llm_api_key.
+    embedding_api_key: str = Field(default="")
     llm_model: str = Field(default="openai/gpt-oss-20b")
-    embedding_model: str = Field(default="text-embedding-3-small")
+    embedding_model: str = Field(default="text-embedding-3-small")  # openai
+    gemini_embedding_model: str = Field(default="text-embedding-004")
     # Local multilingual model (PT + EN) used when embedding_provider == "local".
     local_embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2")
 
@@ -38,14 +43,16 @@ class Settings(BaseSettings):
     # RAG tuning
     chunk_size: int = Field(default=800)
     chunk_overlap: int = Field(default=120)
-    retrieval_top_k: int = Field(default=5)
+    retrieval_top_k: int = Field(default=6)
     # Minimum cosine similarity for a chunk to count as relevant. The hashing
     # fallback and real semantic models have different score scales, so each has
-    # its own tuned threshold; the effective one is chosen by provider below.
-    relevance_threshold: float = Field(default=0.28)  # hashing fallback
-    # sentence-transformers scores are compressed; keep a permissive floor and
-    # let the LLM's grounding prompt reject context that doesn't actually answer.
-    local_relevance_threshold: float = Field(default=0.22)
+    # its own threshold; the retriever picks based on the built provider.
+    relevance_threshold: float = Field(default=0.25)  # hashing fallback
+    # Permissive on purpose: retrieval returns candidates and the strictly
+    # grounded LLM prompt is the real relevance judge (rejects off-topic even
+    # if a chunk squeaks past). Works across score scales (MiniLM ~0.3-0.6,
+    # Gemini text-embedding-004 higher). Off-topic is handled by grounding.
+    semantic_relevance_threshold: float = Field(default=0.30)  # gemini/local/openai
     embedding_dim: int = Field(default=384)
 
     # API / security
@@ -62,8 +69,10 @@ class Settings(BaseSettings):
         "llm_provider",
         "embedding_provider",
         "llm_api_key",
+        "embedding_api_key",
         "llm_model",
         "local_embedding_model",
+        "gemini_embedding_model",
         "embedding_model",
         "vector_db",
         "allowed_origins",
@@ -72,13 +81,6 @@ class Settings(BaseSettings):
     @classmethod
     def _strip_str(cls, v):
         return v.strip() if isinstance(v, str) else v
-
-    @property
-    def effective_relevance_threshold(self) -> float:
-        """Pick the threshold matching the active embedding provider."""
-        if self.embedding_provider.lower() in ("local", "sentence-transformers", "st"):
-            return self.local_relevance_threshold
-        return self.relevance_threshold
 
     @property
     def allowed_origins_list(self) -> list[str]:

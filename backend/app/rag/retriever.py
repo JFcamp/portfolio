@@ -1,4 +1,10 @@
-"""Retriever: embeds a query and fetches the most relevant chunks."""
+"""Retriever: embeds a query and fetches the most relevant chunks.
+
+The behavior adapts to the embedder that was ACTUALLY built (``embedder.semantic``):
+a real semantic model needs no query expansion, while the hashing fallback gets
+light expansion to compensate. Threshold is chosen the same way, so config and
+runtime never disagree.
+"""
 from __future__ import annotations
 
 from app.core.config import Settings
@@ -12,30 +18,29 @@ class Retriever:
         self._embedder = embedder
         self._store = store
         self._settings = settings
-        # Query expansion is a crutch for the hashing fallback; a real semantic
-        # model understands phrasing on its own, so we skip it there.
-        self._use_expansion = settings.embedding_provider.lower() not in (
-            "local",
-            "sentence-transformers",
-            "st",
+        # Decide from the built provider, not the config string.
+        self._semantic = getattr(embedder, "semantic", False)
+        self._threshold = (
+            settings.semantic_relevance_threshold
+            if self._semantic
+            else settings.relevance_threshold
         )
-        self._threshold = settings.effective_relevance_threshold
 
     def retrieve(
         self, query: str, top_k: int | None = None, lang: str | None = None
     ) -> list[SearchResult]:
         k = top_k or self._settings.retrieval_top_k
-        text = expand_query(query) if self._use_expansion else query
+        # Semantic models understand phrasing directly; only the hashing
+        # fallback benefits from light keyword expansion.
+        text = query if self._semantic else expand_query(query)
         vector = self._embedder.embed_one(text)
 
-        # Over-fetch so we can filter by language and still return k results.
+        # Over-fetch so the language filter still has candidates after filtering.
         raw = self._store.search(vector, max(k * 4, k + 10))
         relevant = [r for r in raw if r.score >= self._threshold]
 
         if lang:
             same_lang = [r for r in relevant if (r.metadata.get("lang") or "en") == lang]
-            # Only apply the language filter if that language exists in the index;
-            # otherwise fall back to all languages so answers still work.
             if same_lang:
                 return same_lang[:k]
         return relevant[:k]

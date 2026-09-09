@@ -56,12 +56,8 @@ def build_index(settings: Settings, base_dir: Path | None = None):
     store = build_vector_store(embedder.dim)
 
     # Concept expansion only helps the hashing fallback; a real semantic model
-    # embeds meaning directly, so we index the natural text (with light labels).
-    use_expansion = settings.embedding_provider.lower() not in (
-        "local",
-        "sentence-transformers",
-        "st",
-    )
+    # embeds meaning directly. Decide from what was ACTUALLY built.
+    use_expansion = not getattr(embedder, "semantic", False)
 
     docs = discover_documents(base_dir)
     logger.info("ingestion_start", documents=len(docs))

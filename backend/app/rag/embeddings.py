@@ -3,11 +3,19 @@
 The application depends on the ``EmbeddingProvider`` protocol, not on any single
 vendor, so providers can be swapped via configuration.
 
-- ``OfflineEmbeddingProvider`` (default): deterministic, dependency-free
-  embeddings using hashed character n-grams. Good enough to demonstrate a real
-  retrieval pipeline without any API key or network access.
-- ``OpenAIEmbeddingProvider``: uses the OpenAI embeddings API when configured
-  with a key. Imported lazily so the offline path never requires the SDK.
+Providers:
+- ``GeminiEmbeddingProvider`` (recommended for hosting): real semantic
+  embeddings via Google's free embedding API. No local RAM cost, so it runs on
+  small free instances and gives strong PT + EN retrieval.
+- ``LocalEmbeddingProvider``: sentence-transformers, real semantic embeddings
+  that run locally (needs the model + RAM). Great for local dev.
+- ``OpenAIEmbeddingProvider``: OpenAI embeddings when a key is configured.
+- ``OfflineEmbeddingProvider`` (last-resort fallback): deterministic hashing
+  embeddings, no key and no network. Weaker, but keeps the app working.
+
+``build_embedding_provider`` returns the provider it *actually* built, and each
+provider exposes ``.semantic`` so the rest of the app can adapt (e.g. skip the
+query-expansion crutch that only the hashing fallback needs).
 """
 from __future__ import annotations
 
@@ -18,23 +26,30 @@ from typing import Protocol
 
 from app.core.config import Settings
 
-_TOKEN = re.compile(r"[a-z0-9]+")
+# Unicode-aware tokenizer: keeps accented letters (á, ç, ã, é...) as part of
+# tokens so Portuguese words like "formação" and "Viçosa" stay intact.
+_TOKEN = re.compile(r"[0-9a-zà-öø-ÿ]+", re.IGNORECASE)
 
-# Common words carry little topical signal. Downweighting them keeps similarity
-# driven by meaningful terms (skills, technologies, project names) so that
-# off-topic questions score low even when they mention "Pedro" or "what".
+# Function words (EN + PT) carry little topical signal; downweighting them keeps
+# similarity driven by meaningful terms even in the hashing fallback.
 _STOPWORDS = frozenset(
     """
     a an and are as at be by do does did for from has have he her him his how i in
-    into is it its me my of on or que the their them they this to us was were what
-    when where which who whom whose why will with you your pedro campos about tell
-    give show me please can could would should experience does_he
+    into is it its me my of on or the their them they this to us was were what when
+    where which who whom whose why will with you your about tell give show please
+    can could would should
+    o os as um uma uns umas de do da dos das e ou que qual quais quando onde como
+    porque por para com sem seu sua seus suas ele ela dele dela eles elas em no na
+    nos nas ao aos meu minha sobre tem ter faz fez sao eh ser esta estao quanto
+    quantos quantas me te se isso isto aquele aquela ja mais muito voce
+    pedro campos
     """.split()
 )
 
 
 class EmbeddingProvider(Protocol):
     dim: int
+    semantic: bool  # True for real semantic models; False for the hashing fallback
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         """Embed a batch of texts into fixed-size vectors."""
@@ -54,31 +69,27 @@ def _l2_normalize(vec: list[float]) -> list[float]:
 class OfflineEmbeddingProvider:
     """Deterministic hashing embeddings (bag of hashed word + char n-grams).
 
-    Not semantically as strong as a trained model, but stable and fully local:
-    similar wording maps to nearby vectors, enabling genuine similarity search.
+    Last-resort fallback: no key, no network, no RAM. Weaker than a trained
+    model, but stable. Unicode-aware and PT-stopword-aware so accented
+    Portuguese questions still carry their meaningful terms.
     """
+
+    semantic = False
 
     def __init__(self, dim: int = 384) -> None:
         self.dim = dim
 
     def _features(self, text: str) -> list[tuple[str, float]]:
-        """Return (feature, weight) pairs. Stopwords are heavily downweighted."""
         tokens = _TOKEN.findall(text.lower())
         content = [t for t in tokens if t not in _STOPWORDS and len(t) > 1]
         feats: list[tuple[str, float]] = []
-
-        # Content words carry the main signal.
         for tok in content:
             feats.append((tok, 3.0))
             padded = f"#{tok}#"
             for i in range(len(padded) - 2):
                 feats.append((padded[i : i + 3], 1.0))  # sub-word robustness
-
-        # Bigrams over content words for a little word-order signal.
         for a, b in zip(content, content[1:]):
-            feats.append((f"{a}_{b}", 2.0))
-
-        # Stopwords contribute only a whisper so they can't dominate similarity.
+            feats.append((f"{a}_{b}", 2.0))  # a little word-order signal
         for tok in tokens:
             if tok in _STOPWORDS:
                 feats.append((tok, 0.05))
@@ -100,11 +111,11 @@ class OfflineEmbeddingProvider:
 class LocalEmbeddingProvider:
     """Real semantic embeddings via sentence-transformers, running locally.
 
-    Uses a multilingual model so Portuguese and English questions match the
-    knowledge base equally well. No API key and no network at inference time
-    (the model is downloaded once and cached). This is the recommended default:
-    it dramatically improves retrieval quality over the hashing fallback.
+    Multilingual (PT + EN). No API key and no network at inference time (the
+    model is downloaded once and cached). Needs RAM for the model.
     """
+
+    semantic = True
 
     def __init__(self, model_name: str) -> None:
         from sentence_transformers import SentenceTransformer  # lazy import
@@ -115,7 +126,7 @@ class LocalEmbeddingProvider:
     def embed(self, texts: list[str]) -> list[list[float]]:
         vecs = self._model.encode(
             texts,
-            normalize_embeddings=True,  # cosine similarity via inner product
+            normalize_embeddings=True,
             convert_to_numpy=True,
             show_progress_bar=False,
         )
@@ -125,8 +136,64 @@ class LocalEmbeddingProvider:
         return self.embed([text])[0]
 
 
+class GeminiEmbeddingProvider:
+    """Google Gemini embeddings via the generativelanguage REST API (httpx).
+
+    Free tier, no local RAM cost — ideal for small hosting instances. Uses
+    ``text-embedding-004`` by default. Vectors are L2-normalized so cosine
+    similarity equals inner product in the vector store.
+    """
+
+    semantic = True
+    _BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+    def __init__(self, api_key: str, model: str, timeout: int = 30) -> None:
+        self._key = api_key
+        self._model = model if model.startswith("models/") else f"models/{model}"
+        self._timeout = timeout
+        self.dim = 768  # text-embedding-004
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        import httpx
+
+        # Batch endpoint keeps ingestion fast and within rate limits.
+        url = f"{self._BASE}/{self._model}:batchEmbedContents?key={self._key}"
+        out: list[list[float]] = []
+        # Gemini caps batch size; chunk to be safe.
+        for start in range(0, len(texts), 100):
+            batch = texts[start : start + 100]
+            payload = {
+                "requests": [
+                    {
+                        "model": self._model,
+                        "content": {"parts": [{"text": t}]},
+                    }
+                    for t in batch
+                ]
+            }
+            resp = httpx.post(url, json=payload, timeout=self._timeout)
+            if resp.status_code >= 400:
+                raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
+            data = resp.json()
+            for emb in data.get("embeddings", []):
+                out.append(_l2_normalize(emb["values"]))
+        return out
+
+    def embed_one(self, text: str) -> list[float]:
+        import httpx
+
+        url = f"{self._BASE}/{self._model}:embedContent?key={self._key}"
+        payload = {"model": self._model, "content": {"parts": [{"text": text}]}}
+        resp = httpx.post(url, json=payload, timeout=self._timeout)
+        if resp.status_code >= 400:
+            raise RuntimeError(f"Gemini embed {resp.status_code}: {resp.text[:200]}")
+        return _l2_normalize(resp.json()["embedding"]["values"])
+
+
 class OpenAIEmbeddingProvider:
-    """OpenAI embeddings. Requires ``llm_api_key`` and the ``openai`` package."""
+    """OpenAI embeddings. Requires an API key and the ``openai`` package."""
+
+    semantic = True
 
     def __init__(self, api_key: str, model: str) -> None:
         from openai import OpenAI  # lazy import
@@ -137,29 +204,42 @@ class OpenAIEmbeddingProvider:
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         resp = self._client.embeddings.create(model=self._model, input=texts)
-        return [d.embedding for d in resp.data]
+        return [_l2_normalize(d.embedding) for d in resp.data]
 
     def embed_one(self, text: str) -> list[float]:
         return self.embed([text])[0]
 
 
 def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
-    """Select the embedding provider from config, with safe fallbacks.
+    """Build the embedding provider from config, with safe fallbacks.
 
-    Order: explicit "openai" (if key) -> "local" (sentence-transformers) ->
-    hashing fallback. If "local" is requested but the package/model is missing,
-    we fall back to the hashing provider so the app always starts.
+    Order of preference: gemini -> openai -> local (sentence-transformers) ->
+    offline hashing. If a preferred provider can't initialize (missing key,
+    package, or network), we degrade to the next option so the app always runs.
+    The returned object's ``.semantic`` flag reflects what was ACTUALLY built,
+    which the retriever/ingestion use to decide whether query expansion is needed.
     """
     provider = settings.embedding_provider.lower()
+    key = settings.embedding_api_key or settings.llm_api_key
+
+    if provider == "gemini" and key:
+        try:
+            return GeminiEmbeddingProvider(
+                key, settings.gemini_embedding_model, settings.llm_timeout_seconds
+            )
+        except Exception:  # pragma: no cover - network/env dependent
+            pass
 
     if provider == "openai" and settings.llm_api_key:
-        return OpenAIEmbeddingProvider(settings.llm_api_key, settings.embedding_model)
+        try:
+            return OpenAIEmbeddingProvider(settings.llm_api_key, settings.embedding_model)
+        except Exception:  # pragma: no cover
+            pass
 
     if provider in ("local", "sentence-transformers", "st"):
         try:
             return LocalEmbeddingProvider(settings.local_embedding_model)
-        except Exception:  # pragma: no cover - depends on environment
-            # Package or model unavailable — degrade gracefully.
-            return OfflineEmbeddingProvider(dim=settings.embedding_dim)
+        except Exception:  # pragma: no cover - package/model unavailable
+            pass
 
     return OfflineEmbeddingProvider(dim=settings.embedding_dim)

@@ -18,11 +18,6 @@ from app.rag.vector_store import load_vector_store
 
 logger = get_logger("chat_service")
 
-# When running the extractive offline provider (no real LLM to judge relevance),
-# require a stricter top score before answering, so weak/off-topic matches that
-# cleared the permissive retrieval floor still return "not enough information".
-_OFFLINE_CONFIDENCE_GATE = 0.33
-
 
 class ChatService:
     """Holds the loaded index and answers questions. Built once at startup."""
@@ -57,9 +52,10 @@ class ChatService:
         results = self._retriever.retrieve(question, lang=lang_code)
         top_score = max((r.score for r in results), default=0.0)
 
-        # Extractive offline mode can't judge nuance, so gate weak matches.
-        offline = isinstance(self._llm, OfflineLLMProvider)
-        if not results or (offline and top_score < _OFFLINE_CONFIDENCE_GATE):
+        # Retrieval already applied the relevance threshold. If nothing cleared
+        # it, there's no grounded context — return the standard message. The LLM
+        # (real or offline) then judges whether the retrieved context answers.
+        if not results:
             logger.info("no_relevant_context", injection=injection, top_score=round(top_score, 3))
             return ChatResponse(
                 answer=no_context_message(lang_code), sources=[], confidence=0.0
