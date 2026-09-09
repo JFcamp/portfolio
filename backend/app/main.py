@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Pedro Campos Portfolio — RAG API",
-    version="1.0.0",
+    version="2.0.0-fastembed-hybrid",
     description="Retrieval-Augmented Generation assistant for the portfolio.",
     lifespan=lifespan,
 )
@@ -62,4 +62,9 @@ async def unhandled_exception_handler(_: Request, __: Exception) -> JSONResponse
 
 @app.get("/")
 def root() -> dict[str, str]:
-    return {"service": "portfolio-rag-api", "docs": "/docs", "health": "/api/health"}
+    return {
+        "service": "portfolio-rag-api",
+        "version": app.version,
+        "docs": "/docs",
+        "health": "/api/health",
+    }
