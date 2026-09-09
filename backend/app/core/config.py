@@ -24,16 +24,20 @@ class Settings(BaseSettings):
     # LLM: "offline" (extractive, no key) | "groq" | "gemini" | "openai"
     llm_provider: str = Field(default="offline")
     # Embeddings: "local" (sentence-transformers, recommended) | "offline" | "openai"
-    # Embeddings: "fastembed" (recommended: in-process ONNX, no API, no RAM cost
-    #             from torch, deterministic) | "gemini" (free API) |
-    #             "local" (sentence-transformers) | "openai" | "offline"
-    embedding_provider: str = Field(default="fastembed")
+    # Embeddings:
+    #   "gemini"    — free API, ZERO local RAM (required for the 512MB host).
+    #                 Query embeddings hit the API (1 request/question).
+    #   "fastembed" — in-process ONNX; DEV ONLY (loads ~500MB, OOMs the host).
+    #                 Use it locally to build the committed index.
+    #   "local" | "openai" | "offline"
+    embedding_provider: str = Field(default="gemini")
     llm_api_key: str = Field(default="")
     # Dedicated key for embeddings (Gemini/OpenAI). Falls back to llm_api_key.
     embedding_api_key: str = Field(default="")
     llm_model: str = Field(default="openai/gpt-oss-20b")
     embedding_model: str = Field(default="text-embedding-3-small")  # openai
     gemini_embedding_model: str = Field(default="gemini-embedding-001")
+    gemini_embedding_dim: int = Field(default=3072)  # gemini-embedding-001
     # Local multilingual model (PT + EN) used when embedding_provider == "local".
     local_embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2")
     # fastembed (ONNX) multilingual model — same MiniLM, no torch. Used when

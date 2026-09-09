@@ -1,7 +1,7 @@
-# Core backend — light, fast to build, fits Render's free tier.
-# Embeddings run in-process via fastembed (ONNX Runtime, NO torch): deterministic,
-# no API key, no rate limits, so local and production indexes always match.
-fastembed==0.3.6
+# Core backend — light, fits Render's free 512MB tier. NO local embedding model
+# here (they OOM the instance): query embeddings use the Gemini API (httpx).
+# fastembed/sentence-transformers live in requirements-local.txt for building the
+# committed index on a dev machine.
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 pydantic==2.9.2

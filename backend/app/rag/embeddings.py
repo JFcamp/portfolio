@@ -177,26 +177,32 @@ class GeminiEmbeddingProvider:
     semantic = True
     _BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-    def __init__(self, api_key: str, model: str, timeout: int = 30) -> None:
+    def __init__(self, api_key: str, model: str, timeout: int = 30, dim: int = 3072) -> None:
         self._key = api_key
         self._model = model if model.startswith("models/") else f"models/{model}"
         self._timeout = timeout
-        # Detect the real vector size once, so the store dim always matches the
-        # model (gemini-embedding-001 -> 3072) even if the model changes later.
-        self.dim = len(self.embed_one("dimension probe"))
+        # Known dimension for gemini-embedding-001 (3072). No network probe at
+        # init: a boot-time API failure must NOT crash startup or trigger a
+        # heavy fallback. The dim-mismatch guard in ChatService handles surprises.
+        self.dim = dim
 
     def _post(self, url: str, payload: dict):
         """POST with retry + backoff on 429/5xx so ingestion survives the free
         tier's low rate limit (a few requests/minute). Honors the server's
-        suggested retry delay when present."""
+        suggested retry delay when present.
+
+        The API key is sent as a header (x-goog-api-key), never in the URL, so
+        it can't leak into request logs.
+        """
         import re as _re
         import time
 
         import httpx
 
+        headers = {"x-goog-api-key": self._key}
         delay = 5.0
         for attempt in range(12):
-            resp = httpx.post(url, json=payload, timeout=self._timeout)
+            resp = httpx.post(url, json=payload, headers=headers, timeout=self._timeout)
             if resp.status_code == 200:
                 return resp.json()
             if resp.status_code == 429 or resp.status_code >= 500:
@@ -214,7 +220,7 @@ class GeminiEmbeddingProvider:
     def embed(self, texts: list[str]) -> list[list[float]]:
         import time
 
-        url = f"{self._BASE}/{self._model}:batchEmbedContents?key={self._key}"
+        url = f"{self._BASE}/{self._model}:batchEmbedContents"
         out: list[list[float]] = []
         # One batchEmbedContents call counts as ONE request, so batching many
         # texts per call is the most rate-limit-friendly way to ingest.
@@ -235,7 +241,7 @@ class GeminiEmbeddingProvider:
         return out
 
     def embed_one(self, text: str) -> list[float]:
-        url = f"{self._BASE}/{self._model}:embedContent?key={self._key}"
+        url = f"{self._BASE}/{self._model}:embedContent"
         payload = {"model": self._model, "content": {"parts": [{"text": text}]}}
         data = self._post(url, payload)
         return _l2_normalize(data["embedding"]["values"])
@@ -262,29 +268,28 @@ class OpenAIEmbeddingProvider:
 
 
 def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
-    """Build the embedding provider from config, with safe fallbacks.
+    """Build the embedding provider from config, with memory-safe fallbacks.
 
-    Order of preference: gemini -> openai -> local (sentence-transformers) ->
-    offline hashing. If a preferred provider can't initialize (missing key,
-    package, or network), we degrade to the next option so the app always runs.
-    The returned object's ``.semantic`` flag reflects what was ACTUALLY built,
-    which the retriever/ingestion use to decide whether query expansion is needed.
+    Production runs on a 512MB instance, so we must NEVER load a local model
+    (fastembed/sentence-transformers) there — it alone uses ~500MB and OOMs the
+    process. Query embeddings therefore use the Gemini API (no RAM), and the
+    only in-RAM fallback is the tiny hashing embedder.
+
+    ``fastembed``/``local`` are for building the index OFFLINE on a dev machine
+    (they only load when explicitly requested), never as an implicit fallback.
+
+    The returned object's ``.semantic`` flag reflects what was ACTUALLY built.
     """
     provider = settings.embedding_provider.lower()
     key = settings.embedding_api_key or settings.llm_api_key
 
-    # Preferred for production: in-process ONNX embeddings (fastembed). No API,
-    # no rate limits, deterministic -> local and prod indexes always match.
-    if provider in ("fastembed", "fe", "onnx"):
-        try:
-            return FastEmbedProvider(settings.fastembed_model)
-        except Exception:  # pragma: no cover - package/model unavailable
-            pass
-
     if provider == "gemini" and key:
         try:
             return GeminiEmbeddingProvider(
-                key, settings.gemini_embedding_model, settings.llm_timeout_seconds
+                key,
+                settings.gemini_embedding_model,
+                settings.llm_timeout_seconds,
+                dim=settings.gemini_embedding_dim,
             )
         except Exception:  # pragma: no cover - network/env dependent
             pass
@@ -295,20 +300,20 @@ def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
         except Exception:  # pragma: no cover
             pass
 
+    # Local models: EXPLICIT opt-in only (dev machine, to build the index).
+    # Never used as an implicit fallback because they OOM a 512MB host.
+    if provider in ("fastembed", "fe", "onnx"):
+        try:
+            return FastEmbedProvider(settings.fastembed_model)
+        except Exception:  # pragma: no cover - package/model unavailable
+            pass
+
     if provider in ("local", "sentence-transformers", "st"):
         try:
             return LocalEmbeddingProvider(settings.local_embedding_model)
         except Exception:  # pragma: no cover - package/model unavailable
             pass
 
-    # Before the weak hashing fallback, try fastembed: it's in-process (no key,
-    # no network) and matches the committed index. This means that even if the
-    # host still requests "gemini" but the key/quota fails, we degrade to the
-    # SAME embedder the index was built with — not the incompatible hashing one.
-    if provider != "offline":
-        try:
-            return FastEmbedProvider(settings.fastembed_model)
-        except Exception:  # pragma: no cover - package/model unavailable
-            pass
-
+    # Last resort: hashing embedder. Zero RAM, always works. Weak quality, but
+    # the app stays up; the dim-mismatch guard will rebuild a matching index.
     return OfflineEmbeddingProvider(dim=settings.embedding_dim)

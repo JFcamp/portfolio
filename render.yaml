@@ -1,24 +1,29 @@
 # Render deployment for the backend RAG API.
-# Embeddings run in-process via fastembed (ONNX, no torch, fits the free 512MB
-# instance): no API key, no rate limits, deterministic — so the committed index
-# always matches production. Only secret needed: LLM_API_KEY (Groq).
+#
+# MEMORY: the Free instance is 512MB. We do NOT load any local embedding model
+# (that alone uses ~500MB and OOMs the process — the cause of failed deploys).
+# Embeddings use the Gemini API (no RAM). The index is pre-computed & committed,
+# so startup only loads it from disk and embeds the user's query via the API.
+#
+# SECRETS to set in the Render dashboard (Environment tab):
+#   EMBEDDING_API_KEY — Google AI Studio key (starts with AIza...). NOT the Groq key.
+#   LLM_API_KEY       — Groq key (starts with gsk_...).
 services:
   - type: web
     name: portfolio-rag-api
     runtime: python
     rootDir: backend
-    # pip --no-cache-dir + clearing __pycache__ ensures a clean build (Render's
-    # build cache can otherwise serve stale bytecode after a code change).
-    buildCommand: pip install --no-cache-dir -r requirements.txt && find . -name '__pycache__' -type d -prune -exec rm -rf {} +
-    # The index is pre-computed and committed. We do NOT re-ingest at startup;
-    # the app loads the committed index and only embeds the user's query.
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    # Do NOT re-ingest at startup: load the committed index; only embed queries.
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
       - key: EMBEDDING_PROVIDER
-        value: fastembed
-      - key: FASTEMBED_MODEL
-        value: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+        value: gemini
+      - key: EMBEDDING_API_KEY
+        sync: false           # Google AI Studio key (AIza...), NOT Groq
+      - key: GEMINI_EMBEDDING_MODEL
+        value: gemini-embedding-001
       - key: LLM_PROVIDER
         value: groq
       - key: LLM_API_KEY

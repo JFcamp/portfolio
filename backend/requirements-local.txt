@@ -1,8 +1,10 @@
-# Optional: only needed to run EMBEDDING_PROVIDER=local (sentence-transformers)
-# on your own machine. NOT installed on the free hosting instance (which uses
-# the Gemini embedding API instead). Install with:
-#   pip install -r requirements.txt -r requirements-local.txt
+# Optional: only for building the index on your OWN machine (they load a local
+# model and would OOM the 512MB host, so they're NOT in requirements.txt).
+# Install with:  pip install -r requirements.txt -r requirements-local.txt
+#   - fastembed: recommended for local index builds (ONNX, no torch)
+#   - sentence-transformers: for EMBEDDING_PROVIDER=local
 -r requirements.txt
+fastembed==0.3.6
 sentence-transformers==3.0.1
 scipy==1.13.1
 scikit-learn==1.5.1
