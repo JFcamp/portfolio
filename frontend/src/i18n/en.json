@@ -6,13 +6,11 @@
     "projects": "Projects",
     "skills": "Skills",
     "assistant": "AI Assistant",
-    "contact": "Contact",
-    "resume": "Download Resume"
+    "contact": "Contact"
   },
   "hero": {
     "viewProjects": "View Projects",
-    "askAi": "Ask my AI",
-    "resume": "Download Resume"
+    "askAi": "Ask my AI"
   },
   "tech": {
     "title": "Technologies I work with"

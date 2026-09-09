@@ -19,7 +19,6 @@ const profiles: Localized<Profile> = {
     email: 'pedrocampos6388@gmail.com',
     githubUrl: 'TODO_GITHUB_URL',
     linkedinUrl: 'https://www.linkedin.com/in/pedro-campos-5760a92ab/',
-    resumeUrl: '/resume.pdf',
     stats: [
       { label: 'Years in AI', value: '3+' },
       { label: 'Chatbots in Production', value: '14+' },
@@ -47,7 +46,6 @@ const profiles: Localized<Profile> = {
     email: 'pedrocampos6388@gmail.com',
     githubUrl: 'TODO_GITHUB_URL',
     linkedinUrl: 'https://www.linkedin.com/in/pedro-campos-5760a92ab/',
-    resumeUrl: '/resume.pdf',
     stats: [
       { label: 'Anos em IA', value: '3+' },
       { label: 'Chatbots em Produção', value: '14+' },

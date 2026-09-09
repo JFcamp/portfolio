@@ -6,13 +6,11 @@
     "projects": "Projetos",
     "skills": "Competências",
     "assistant": "Assistente IA",
-    "contact": "Contato",
-    "resume": "Baixar Currículo"
+    "contact": "Contato"
   },
   "hero": {
     "viewProjects": "Ver Projetos",
-    "askAi": "Perguntar à IA",
-    "resume": "Baixar Currículo"
+    "askAi": "Perguntar à IA"
   },
   "tech": {
     "title": "Tecnologias que utilizo"
