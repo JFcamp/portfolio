@@ -7,27 +7,26 @@ date: 2026
 
 # Pedro Campos — Resume Summary
 
-Conversational AI & Machine Learning Engineer specializing in RAG, LLMs, and
-customer-service automation.
+Machine Learning Engineer specializing in computer vision, generative AI, MLOps
+and applied machine learning, from prototype to production.
 
 ## Summary
-Machine Learning Engineer with more than 3 years of experience in AI, working in
-Conversational and Generative AI. Developed and deployed to production more than
-14 chatbots and virtual assistants with RAG and LLMs (Claude API, OpenAI API,
-LangChain, Dify, Botpress, Dialogflow) to automate customer service for clients
-across sectors. Author of 5 award-winning research papers. Experienced in building and
-optimizing conversational flows, curating knowledge bases, prompt engineering,
-and analyzing real interactions to generate recommendations. Background in
-customer service (Itaú) and in communicating AI to non-technical audiences
-(articles, mini-course, teaching assistant). Information Systems at UFV, final
+Machine Learning Engineer with more than 3 years of experience in AI, working
+across computer vision, classical machine learning, generative AI, MLOps and
+conversational AI. Author of 5 award-winning research papers in deep learning.
+Experience includes weed-segmentation with YOLO and on-device inference,
+explainable credit scoring with calibration and fairness, MLOps platforms
+(model registry, monitoring, CI/CD), RAG systems, and more than 14 chatbots and
+virtual assistants shipped to production. Information Systems at UFV, final
 semester, graduating December 2026.
 
 ## Core strengths
-- Conversational AI and Generative AI: RAG, LLMs, prompt engineering.
-- Production deployment of chatbots and virtual assistants.
-- Knowledge-base curation and conversational flow design.
-- NLP applied to text classification, content automation and insight generation.
-- Integration of AI solutions into systems via REST APIs.
+- Machine learning end to end: from data and modeling to a deployed, monitored API.
+- Computer vision: object detection and segmentation (YOLO), edge/on-device inference.
+- Classical ML: calibration, interpretability (SHAP), and fairness.
+- MLOps: model registry, monitoring, drift detection, CI/CD, reproducible training.
+- Generative AI and RAG: LLMs, embeddings, vector search, prompt engineering.
+- Conversational AI: production chatbots and virtual assistants.
 
 ## Contact
 Email: pedrocampos6388@gmail.com

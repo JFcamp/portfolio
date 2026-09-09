@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowRight, Github, Linkedin, MessageSquare, FileDown } from 'lucide-react';
+import { ArrowRight, Github, Linkedin, MessageSquare } from 'lucide-react';
 import { useProfile } from '@/data/profile';
 import { isTodo } from '@/utils/isTodo';
 import { PipelineViz } from '@/components/PipelineViz';
@@ -83,14 +83,6 @@ export function Hero({ onOpenChat }: { onOpenChat: () => void }) {
               <MessageSquare size={16} />
               {t('hero.askAi')}
             </button>
-            <a
-              href={profile.resumeUrl}
-              download
-              className="inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium text-content-secondary transition-colors hover:text-content-primary"
-            >
-              <FileDown size={16} />
-              {t('hero.resume')}
-            </a>
           </motion.div>
 
           <motion.div

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Github, Linkedin, Menu, X, FileDown } from 'lucide-react';
+import { Github, Linkedin, Menu, X } from 'lucide-react';
 import { profile } from '@/data/profile';
 import { useScrolled } from '@/hooks/useScrolled';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
@@ -89,14 +89,6 @@ export function Header() {
               <Linkedin size={18} />
             </a>
           )}
-          <a
-            href={profile.resumeUrl}
-            className="inline-flex items-center gap-2 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20"
-            download
-          >
-            <FileDown size={15} />
-            {t('nav.resume')}
-          </a>
         </div>
 
         <button
@@ -124,14 +116,9 @@ export function Header() {
                 </button>
               </li>
             ))}
-            <li className="mt-3 flex items-center justify-between border-t border-border pt-3">
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <LanguageToggle />
-              </div>
-              <a href={profile.resumeUrl} className="text-sm font-medium text-accent" download>
-                {t('nav.resume')}
-              </a>
+            <li className="mt-3 flex items-center gap-3 border-t border-border pt-3">
+              <ThemeToggle />
+              <LanguageToggle />
             </li>
           </ul>
         </div>

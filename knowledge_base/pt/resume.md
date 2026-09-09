@@ -8,27 +8,26 @@ lang: pt
 
 # Pedro Campos — Resumo Profissional
 
-Engenheiro de IA Conversacional e Machine Learning, especializado em RAG, LLMs e
-automação de atendimento.
+Engenheiro de Machine Learning especializado em visão computacional, IA
+generativa, MLOps e machine learning aplicado, do protótipo à produção.
 
 ## Resumo
 Engenheiro de Machine Learning com mais de 3 anos de experiência em IA, atuando
-em IA Conversacional e Generativa. Desenvolveu e colocou em produção mais de 14
-chatbots e assistentes virtuais com RAG e LLMs (Claude API, OpenAI API,
-LangChain, Dify, Botpress, Dialogflow) para automação de atendimento em clientes
-de vários setores. Autor de 5 artigos de pesquisa premiados. Experiência em construir
-e otimizar fluxos conversacionais, curar bases de conhecimento, engenharia de
-prompts e análise de interações reais para gerar recomendações. Vivência em
-atendimento ao cliente (Itaú) e em comunicar IA para públicos não técnicos
-(artigos, minicurso, monitoria). Sistemas de Informação na UFV, último período,
-conclusão em dezembro de 2026.
+em visão computacional, machine learning clássico, IA generativa, MLOps e IA
+conversacional. Autor de 5 artigos de pesquisa premiados em deep learning. Sua
+experiência inclui segmentação de plantas daninhas com YOLO e inferência no
+dispositivo, crédito explicável com calibração e justiça, plataformas de MLOps
+(registro de modelos, monitoramento, CI/CD), sistemas RAG, e mais de 14 chatbots
+e assistentes virtuais colocados em produção. Sistemas de Informação na UFV,
+último período, conclusão em dezembro de 2026.
 
 ## Principais pontos fortes
-- IA Conversacional e Generativa: RAG, LLMs, engenharia de prompts.
-- Deploy em produção de chatbots e assistentes virtuais.
-- Curadoria de bases de conhecimento e desenho de fluxos conversacionais.
-- PLN aplicado a classificação de texto, automação de conteúdo e geração de insights.
-- Integração de soluções de IA a sistemas via APIs REST.
+- Machine learning de ponta a ponta: do dado e modelagem à API implantada e monitorada.
+- Visão computacional: detecção e segmentação de objetos (YOLO), inferência no edge/dispositivo.
+- ML clássico: calibração, interpretabilidade (SHAP) e justiça.
+- MLOps: registro de modelos, monitoramento, detecção de drift, CI/CD, treino reprodutível.
+- IA generativa e RAG: LLMs, embeddings, busca vetorial, engenharia de prompts.
+- IA conversacional: chatbots e assistentes virtuais em produção.
 
 ## Contato
 Email: pedrocampos6388@gmail.com
