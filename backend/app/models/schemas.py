@@ -60,3 +60,4 @@ class HealthResponse(BaseModel):
     store_dim: int = 0
     embedder_dim: int = 0
     retrieval_top_k: int = 0
+    git_sha: str = ""

@@ -1,6 +1,8 @@
 """Health endpoint."""
 from __future__ import annotations
 
+import os
+
 from fastapi import APIRouter, Request
 
 from app.core.config import get_settings
@@ -27,4 +29,5 @@ def health(request: Request) -> HealthResponse:
         store_dim=getattr(service, "store_dim", 0),
         embedder_dim=getattr(service, "_embedder", None).dim if service else 0,
         retrieval_top_k=settings.retrieval_top_k,
+        git_sha=os.environ.get("RENDER_GIT_COMMIT", "")[:8],
     )
