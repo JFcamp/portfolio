@@ -64,7 +64,15 @@ class ChatService:
         question = sanitize_question(message, self._settings.max_question_length)
         injection = looks_like_injection(question)
 
-        results = self._retriever.retrieve(question, lang=lang_code)
+        try:
+            results = self._retriever.retrieve(question, lang=lang_code)
+        except Exception as exc:
+            # The query embedder can fail (e.g. wrong/expired embedding key, API
+            # down). Don't 500 the user — return the standard "no info" message.
+            logger.error("retrieval_failed", error=f"{type(exc).__name__}: {exc}")
+            return ChatResponse(
+                answer=no_context_message(lang_code), sources=[], confidence=0.0
+            )
         top_score = max((r.score for r in results), default=0.0)
 
         # Retrieval already applied the relevance threshold. If nothing cleared
