@@ -136,6 +136,35 @@ class LocalEmbeddingProvider:
         return self.embed([text])[0]
 
 
+class FastEmbedProvider:
+    """Real semantic embeddings via fastembed (ONNX Runtime, no PyTorch).
+
+    Multilingual (PT + EN) using MiniLM. Lightweight enough for a 512MB free
+    instance: no torch, ~90-220MB model cached on first use, deterministic, no
+    API key, no network at inference, no rate limits. This makes local and
+    production embeddings IDENTICAL, so a committed index always matches.
+    """
+
+    semantic = True
+
+    def __init__(self, model_name: str) -> None:
+        from fastembed import TextEmbedding  # lazy import
+
+        self._model = TextEmbedding(model_name=model_name)
+        # Probe dimension from a local embedding (no network involved).
+        self.dim = len(self.embed_one("dimension probe"))
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        out: list[list[float]] = []
+        for v in self._model.embed(list(texts)):
+            out.append(_l2_normalize([float(x) for x in v]))
+        return out
+
+    def embed_one(self, text: str) -> list[float]:
+        v = next(iter(self._model.embed([text])))
+        return _l2_normalize([float(x) for x in v])
+
+
 class GeminiEmbeddingProvider:
     """Google Gemini embeddings via the generativelanguage REST API (httpx).
 
@@ -244,6 +273,14 @@ def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
     provider = settings.embedding_provider.lower()
     key = settings.embedding_api_key or settings.llm_api_key
 
+    # Preferred for production: in-process ONNX embeddings (fastembed). No API,
+    # no rate limits, deterministic -> local and prod indexes always match.
+    if provider in ("fastembed", "fe", "onnx"):
+        try:
+            return FastEmbedProvider(settings.fastembed_model)
+        except Exception:  # pragma: no cover - package/model unavailable
+            pass
+
     if provider == "gemini" and key:
         try:
             return GeminiEmbeddingProvider(
@@ -261,6 +298,16 @@ def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
     if provider in ("local", "sentence-transformers", "st"):
         try:
             return LocalEmbeddingProvider(settings.local_embedding_model)
+        except Exception:  # pragma: no cover - package/model unavailable
+            pass
+
+    # Before the weak hashing fallback, try fastembed: it's in-process (no key,
+    # no network) and matches the committed index. This means that even if the
+    # host still requests "gemini" but the key/quota fails, we degrade to the
+    # SAME embedder the index was built with — not the incompatible hashing one.
+    if provider != "offline":
+        try:
+            return FastEmbedProvider(settings.fastembed_model)
         except Exception:  # pragma: no cover - package/model unavailable
             pass
 

@@ -7,8 +7,10 @@ date: 2026
 
 # Education
 
-## Bachelor's in Information Systems — Universidade Federal de Viçosa (UFV)
-Period: 2023 – expected December 2026 (final semester).
+Pedro's academic background and education (degree, university, formação): Pedro
+is pursuing a Bachelor's in Information Systems at the Universidade Federal de
+Viçosa (UFV), from 2023 with expected completion in December 2026 (final
+semester). This is Pedro's only higher-education degree.
 
 Pedro is an undergraduate researcher and AI teaching assistant at UFV, with
 award-winning deep learning publications:

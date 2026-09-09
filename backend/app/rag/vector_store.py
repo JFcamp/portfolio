@@ -61,6 +61,7 @@ class VectorStore(Protocol):
 
     def add(self, vectors: list[list[float]], texts: list[str], metadatas: list[dict]) -> None: ...
     def search(self, vector: list[float], top_k: int) -> list[SearchResult]: ...
+    def all_items(self) -> list[SearchResult]: ...
     def save(self, path: Path) -> None: ...
     def size(self) -> int: ...
 
@@ -99,6 +100,11 @@ class NumpyVectorStore(_BaseStore):
             SearchResult(self._texts[i], self._metadatas[i], float(scores[i])) for i in idx
         ]
 
+    def all_items(self) -> list[SearchResult]:
+        return [
+            SearchResult(t, m, 0.0) for t, m in zip(self._texts, self._metadatas)
+        ]
+
     def save(self, path: Path) -> None:
         path.mkdir(parents=True, exist_ok=True)
         np.save(path / "matrix.npy", self._matrix)
@@ -130,6 +136,11 @@ class FaissVectorStore(_BaseStore):
                 continue
             results.append(SearchResult(self._texts[i], self._metadatas[i], float(score)))
         return results
+
+    def all_items(self) -> list[SearchResult]:
+        return [
+            SearchResult(t, m, 0.0) for t, m in zip(self._texts, self._metadatas)
+        ]
 
     def save(self, path: Path) -> None:
         path.mkdir(parents=True, exist_ok=True)

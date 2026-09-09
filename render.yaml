@@ -1,26 +1,22 @@
 # Render deployment for the backend RAG API.
-# Uses Gemini's free embedding API (no local model, no torch, fits the free
-# 512MB instance) + Groq's free tier for answer generation.
-# Set two secrets in the Render dashboard: EMBEDDING_API_KEY (Google AI Studio)
-# and LLM_API_KEY (Groq). They can be the same Google key if you use Gemini for both.
+# Embeddings run in-process via fastembed (ONNX, no torch, fits the free 512MB
+# instance): no API key, no rate limits, deterministic — so the committed index
+# always matches production. Only secret needed: LLM_API_KEY (Groq).
 services:
   - type: web
     name: portfolio-rag-api
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    # The Gemini index is pre-computed and committed, so we do NOT re-ingest at
-    # startup (that would hit the free-tier embedding rate limit on every cold
-    # start). Only query-time embeddings hit the API — 1 request per question.
+    # The index is pre-computed and committed. We do NOT re-ingest at startup;
+    # the app loads the committed index and only embeds the user's query.
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
       - key: EMBEDDING_PROVIDER
-        value: gemini
-      - key: EMBEDDING_API_KEY
-        sync: false           # Google AI Studio key (aistudio.google.com)
-      - key: GEMINI_EMBEDDING_MODEL
-        value: gemini-embedding-001
+        value: fastembed
+      - key: FASTEMBED_MODEL
+        value: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
       - key: LLM_PROVIDER
         value: groq
       - key: LLM_API_KEY

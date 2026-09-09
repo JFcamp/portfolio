@@ -24,9 +24,10 @@ class Settings(BaseSettings):
     # LLM: "offline" (extractive, no key) | "groq" | "gemini" | "openai"
     llm_provider: str = Field(default="offline")
     # Embeddings: "local" (sentence-transformers, recommended) | "offline" | "openai"
-    # Embeddings: "gemini" (recommended for hosting, free API, no RAM) |
+    # Embeddings: "fastembed" (recommended: in-process ONNX, no API, no RAM cost
+    #             from torch, deterministic) | "gemini" (free API) |
     #             "local" (sentence-transformers) | "openai" | "offline"
-    embedding_provider: str = Field(default="gemini")
+    embedding_provider: str = Field(default="fastembed")
     llm_api_key: str = Field(default="")
     # Dedicated key for embeddings (Gemini/OpenAI). Falls back to llm_api_key.
     embedding_api_key: str = Field(default="")
@@ -35,6 +36,11 @@ class Settings(BaseSettings):
     gemini_embedding_model: str = Field(default="gemini-embedding-001")
     # Local multilingual model (PT + EN) used when embedding_provider == "local".
     local_embedding_model: str = Field(default="paraphrase-multilingual-MiniLM-L12-v2")
+    # fastembed (ONNX) multilingual model — same MiniLM, no torch. Used when
+    # embedding_provider == "fastembed" (the production default).
+    fastembed_model: str = Field(
+        default="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    )
 
     # Vector store
     vector_db: str = Field(default="faiss")
@@ -51,11 +57,11 @@ class Settings(BaseSettings):
     # fallback and real semantic models have different score scales, so each has
     # its own threshold; the retriever picks based on the built provider.
     relevance_threshold: float = Field(default=0.25)  # hashing fallback
-    # Permissive on purpose: retrieval returns candidates and the strictly
-    # grounded LLM prompt is the real relevance judge (rejects off-topic even
-    # if a chunk squeaks past). Works across score scales (MiniLM ~0.3-0.6,
-    # Gemini text-embedding-004 higher). Off-topic is handled by grounding.
-    semantic_relevance_threshold: float = Field(default=0.30)  # gemini/local/openai
+    # Semantic gate for MiniLM (fastembed): off-topic questions sit around
+    # 0.31-0.43, real on-topic is 0.45+ (often 0.5-0.8). 0.45 rejects off-topic
+    # while the hybrid retriever's lexical path still catches exact terms
+    # (FAISS, PostgreSQL, formação) that the embedding may score lower.
+    semantic_relevance_threshold: float = Field(default=0.45)  # fastembed/local/gemini
     embedding_dim: int = Field(default=384)
 
     # API / security
