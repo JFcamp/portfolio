@@ -7,7 +7,9 @@ services:
     name: portfolio-rag-api
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    # pip --no-cache-dir + clearing __pycache__ ensures a clean build (Render's
+    # build cache can otherwise serve stale bytecode after a code change).
+    buildCommand: pip install --no-cache-dir -r requirements.txt && find . -name '__pycache__' -type d -prune -exec rm -rf {} +
     # The index is pre-computed and committed. We do NOT re-ingest at startup;
     # the app loads the committed index and only embeds the user's query.
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
